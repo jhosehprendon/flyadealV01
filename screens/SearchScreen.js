@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { TouchableOpacity, ScrollView, Text } from 'react-native';
+import { TouchableOpacity, ScrollView, Text, LayoutAnimation } from 'react-native';
 import { Card, CardSection, Input, Button } from '../components/UI/index';
 import DateTimePicker from 'react-native-modal-datetime-picker'; 
 // import Icon from 'react-native-vector-icons/Ionicons';
@@ -19,6 +19,10 @@ class SearchScreen extends Component {
         },
         departureDate: (new Date()).toLocaleDateString('en-US', DATE_OPTIONS),
         returnDate: (new Date()).toLocaleDateString('en-US', DATE_OPTIONS)
+    }
+
+    componentWillUpdate() {
+        LayoutAnimation.spring()
     }
 
     showDepartureDateTimePicker = () => {
