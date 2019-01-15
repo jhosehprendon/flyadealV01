@@ -1,31 +1,49 @@
 import React, { Component } from 'react';
-import { TouchableOpacity, View, Text } from 'react-native';
+import { TouchableOpacity, ScrollView, Text } from 'react-native';
 import { Card, CardSection, Input, Button } from '../components/UI/index';
 import DateTimePicker from 'react-native-modal-datetime-picker'; 
 // import Icon from 'react-native-vector-icons/Ionicons';
 
+const DATE_OPTIONS = { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' };
+
 class SearchScreen extends Component {
     state = {
-        isDateTimePickerVisible: false,
+        isDepartureDateTimePickerVisible: false,
+        isReturnDateTimePickerVisible: false,
         returnOption: true,
         showPassengerOptions: false,
         passengers: {
             adult: 1,
             child: 0,
             infant: 0
-        }
+        },
+        departureDate: (new Date()).toLocaleDateString('en-US', DATE_OPTIONS),
+        returnDate: (new Date()).toLocaleDateString('en-US', DATE_OPTIONS)
     }
 
-    showDateTimePicker = () => {
-        this.setState({ isDateTimePickerVisible: true });
+    showDepartureDateTimePicker = () => {
+        this.setState({ isDepartureDateTimePickerVisible: true });
+    }
+
+    showReturnDateTimePicker = () => {
+        this.setState({ isReturnDateTimePickerVisible: true });
     }
  
     hideDateTimePicker = () => {
-        this.setState({ isDateTimePickerVisible: false });
+        this.setState({ isDepartureDateTimePickerVisible: false, isReturnDateTimePickerVisible: false  });
     }
  
-    handleDatePicked = (date) => {
-        console.log('A date has been picked: ', date);
+    handleDepartureDatePicked = (date) => {
+            this.setState({ departureDate: date.toLocaleDateString('en-US', DATE_OPTIONS) })
+
+        // console.log(date);
+        this.hideDateTimePicker();
+    };
+
+    handleReturnDatePicked = (date) => {
+        this.setState({ returnDate: date.toLocaleDateString('en-US', DATE_OPTIONS) })
+
+        // console.log(date);
         this.hideDateTimePicker();
     };
 
@@ -37,21 +55,18 @@ class SearchScreen extends Component {
         this.setState({ returnOption: true })
     }
 
-    togglePassengers = () => {
-        this.setState({ showPassengerOptions: !this.state.showPassengerOptions })
-    }
-
-
     renderReturn = () => {
         if(this.state.returnOption) {
             return (
                 <CardSection>
-                    <TouchableOpacity style= {styles.containerStyle} onPress={this.showDateTimePicker}>
+                    <TouchableOpacity style= {styles.containerStyle} onPress={this.showReturnDateTimePicker}>
                         <Text style= {styles.datePickerStyle}>Return</Text>
+                        <Text style= {styles.datePlaceholderStyle}>{this.state.returnDate}</Text>
                     </TouchableOpacity>
+        
                     <DateTimePicker
-                        isVisible={this.state.isDateTimePickerVisible}
-                        onConfirm={this.handleDatePicked}
+                        isVisible={this.state.isReturnDateTimePickerVisible}
+                        onConfirm={this.handleReturnDatePicked}
                         onCancel={this.hideDateTimePicker}
                     />
                 </CardSection>
@@ -79,24 +94,28 @@ class SearchScreen extends Component {
         }
     }
 
+    togglePassengers = () => {
+        this.setState({ showPassengerOptions: !this.state.showPassengerOptions })
+    }
+
     renderPassengerOptions = () => {
         if(this.state.showPassengerOptions) {
             return (
                 <Card>
                     <CardSection>
-                        <Text style= {styles.datePickerStyle}>{this.state.passengers.adult} Adult</Text>
-                        <Text style= {styles.datePickerStyle} onPress={() => this.addPassenger('adult')}>+</Text>
-                        <Text style= {styles.datePickerStyle} onPress={() => this.removePassenger('adult')}>-</Text> 
+                        <Text style= {styles.passengerStyle}>{this.state.passengers.adult} Adult</Text>
+                        <Text style= {styles.passengerStyle} onPress={() => this.addPassenger('adult')}>+</Text>
+                        <Text style= {styles.passengerStyle} onPress={() => this.removePassenger('adult')}>-</Text> 
                     </CardSection>  
                     <CardSection>
-                        <Text style= {styles.datePickerStyle}>{this.state.passengers.child} Child</Text>
-                        <Text style= {styles.datePickerStyle} onPress={() => this.addPassenger('child')}>+</Text>
-                        <Text style= {styles.datePickerStyle} onPress={() => this.removePassenger('child')}>-</Text> 
+                        <Text style= {styles.passengerStyle}>{this.state.passengers.child} Child</Text>
+                        <Text style= {styles.passengerStyle} onPress={() => this.addPassenger('child')}>+</Text>
+                        <Text style= {styles.passengerStyle} onPress={() => this.removePassenger('child')}>-</Text> 
                     </CardSection> 
                     <CardSection>
-                        <Text style= {styles.datePickerStyle}>{this.state.passengers.infant} Infant</Text>
-                        <Text style= {styles.datePickerStyle} onPress={() => this.addPassenger('infant')}>+</Text>
-                        <Text style= {styles.datePickerStyle} onPress={() => this.removePassenger('infant')}>-</Text> 
+                        <Text style= {styles.passengerStyle}>{this.state.passengers.infant} Infant</Text>
+                        <Text style= {styles.passengerStyle} onPress={() => this.addPassenger('infant')}>+</Text>
+                        <Text style= {styles.passengerStyle} onPress={() => this.removePassenger('infant')}>-</Text> 
                     </CardSection>   
                 </Card>
             )
@@ -105,6 +124,7 @@ class SearchScreen extends Component {
 
     render() {
         return (
+            <ScrollView>
             <Card>
                 <CardSection>
                     <Button text='Return' onPress={this.selectReturn} selected={this.state.returnOption}/>
@@ -130,13 +150,15 @@ class SearchScreen extends Component {
                 </CardSection>
 
                 <CardSection>
-                    <TouchableOpacity style= {styles.containerStyle}  onPress={this.showDateTimePicker}>
+                    <TouchableOpacity style= {styles.containerStyle}  onPress={this.showDepartureDateTimePicker}>
                         <Text style= {styles.datePickerStyle}>Depart</Text>
+                        <Text style= {styles.datePlaceholderStyle}>{this.state.departureDate}</Text>
                     </TouchableOpacity>
+           
                     <DateTimePicker
-                        isVisible={this.state.isDateTimePickerVisible}
-                        onConfirm={this.handleDatePicked}
-                        onCancel={this.hideDateTimePicker}
+                        isVisible={this.state.isDepartureDateTimePickerVisible}
+                        onConfirm={this.handleDepartureDatePicked}
+                        onCancel={this.hideDateTimePicker} 
                     />
                 </CardSection>
                     
@@ -145,6 +167,7 @@ class SearchScreen extends Component {
                 <CardSection>
                     <TouchableOpacity style= {styles.containerStyle} onPress={this.togglePassengers}>
                         <Text style= {styles.datePickerStyle}>Passengers</Text>
+                        <Text style= {styles.passengerInputStyle}> Adult: {this.state.passengers.adult}, Child: {this.state.passengers.child}, Infant: {this.state.passengers.infant}  </Text>
                     </TouchableOpacity>    
                 </CardSection>
 
@@ -154,6 +177,7 @@ class SearchScreen extends Component {
                     <Button text='Search Flights' />
                 </CardSection>
             </Card>
+            </ScrollView>
         )
     }
 }
@@ -165,11 +189,29 @@ const styles = {
         flex: 1
 
     },
+    datePlaceholderStyle: {
+        fontSize: 18,
+        color: '#D3D3D3',
+        flex: 2
+    },
     containerStyle: {
         height: 40,
         flex: 1,
         flexDirection: 'row',
         alignItems: 'center'
+    },
+    passengerStyle: {
+        fontSize: 18,
+        paddingLeft: 20,
+        paddingTop: 20,
+        paddingBottom: 20,
+        flex: 1
+
+    },
+    passengerInputStyle: {
+        fontSize: 15,
+        color: '#D3D3D3',
+        flex: 2
     }
 }
 
