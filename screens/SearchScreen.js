@@ -7,12 +7,22 @@ import DateTimePicker from 'react-native-modal-datetime-picker';
 class SearchScreen extends Component {
     state = {
         isDateTimePickerVisible: false,
-        returnOption: true
+        returnOption: true,
+        showPassengerOptions: false,
+        passengers: {
+            adult: 1,
+            child: 0,
+            infant: 0
+        }
     }
 
-    showDateTimePicker = () => this.setState({ isDateTimePickerVisible: true });
+    showDateTimePicker = () => {
+        this.setState({ isDateTimePickerVisible: true });
+    }
  
-    hideDateTimePicker = () => this.setState({ isDateTimePickerVisible: false });
+    hideDateTimePicker = () => {
+        this.setState({ isDateTimePickerVisible: false });
+    }
  
     handleDatePicked = (date) => {
         console.log('A date has been picked: ', date);
@@ -25,6 +35,10 @@ class SearchScreen extends Component {
 
     selectReturn = () => {
         this.setState({ returnOption: true })
+    }
+
+    togglePassengers = () => {
+        this.setState({ showPassengerOptions: !this.state.showPassengerOptions })
     }
 
 
@@ -41,6 +55,50 @@ class SearchScreen extends Component {
                         onCancel={this.hideDateTimePicker}
                     />
                 </CardSection>
+            )
+        }
+    }
+
+    addPassenger = (passenger) => {
+        if(passenger == 'adult') {
+            this.setState({ passengers: { ...this.state.passengers, adult: this.state.passengers.adult + 1} })
+        } else if (passenger == 'child') {
+            this.setState({ passengers: { ...this.state.passengers, child: this.state.passengers.child + 1} })
+        } else if (passenger == 'infant') {
+            this.setState({ passengers: { ...this.state.passengers, infant: this.state.passengers.infant + 1} })
+        }
+    }
+
+    removePassenger = (passenger) => {
+        if(passenger == 'adult' && this.state.passengers.adult > 1) {
+            this.setState({ passengers: { ...this.state.passengers, adult: this.state.passengers.adult - 1} })
+        } else if (passenger == 'child' && this.state.passengers.child > 0) {
+            this.setState({ passengers: { ...this.state.passengers, child: this.state.passengers.child - 1} })
+        } else if (passenger == 'infant' && this.state.passengers.infant > 0) {
+            this.setState({ passengers: { ...this.state.passengers, infant: this.state.passengers.infant - 1} })
+        }
+    }
+
+    renderPassengerOptions = () => {
+        if(this.state.showPassengerOptions) {
+            return (
+                <Card>
+                    <CardSection>
+                        <Text style= {styles.datePickerStyle}>{this.state.passengers.adult} Adult</Text>
+                        <Text style= {styles.datePickerStyle} onPress={() => this.addPassenger('adult')}>+</Text>
+                        <Text style= {styles.datePickerStyle} onPress={() => this.removePassenger('adult')}>-</Text> 
+                    </CardSection>  
+                    <CardSection>
+                        <Text style= {styles.datePickerStyle}>{this.state.passengers.child} Child</Text>
+                        <Text style= {styles.datePickerStyle} onPress={() => this.addPassenger('child')}>+</Text>
+                        <Text style= {styles.datePickerStyle} onPress={() => this.removePassenger('child')}>-</Text> 
+                    </CardSection> 
+                    <CardSection>
+                        <Text style= {styles.datePickerStyle}>{this.state.passengers.infant} Infant</Text>
+                        <Text style= {styles.datePickerStyle} onPress={() => this.addPassenger('infant')}>+</Text>
+                        <Text style= {styles.datePickerStyle} onPress={() => this.removePassenger('infant')}>-</Text> 
+                    </CardSection>   
+                </Card>
             )
         }
     }
@@ -85,7 +143,15 @@ class SearchScreen extends Component {
                 {this.renderReturn()}
 
                 <CardSection>
-                    <Button text='Search' />
+                    <TouchableOpacity style= {styles.containerStyle} onPress={this.togglePassengers}>
+                        <Text style= {styles.datePickerStyle}>Passengers</Text>
+                    </TouchableOpacity>    
+                </CardSection>
+
+                {this.renderPassengerOptions()}
+
+                <CardSection>
+                    <Button text='Search Flights' />
                 </CardSection>
             </Card>
         )
